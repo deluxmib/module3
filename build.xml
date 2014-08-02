@@ -1,0 +1,79 @@
+<project name="TestProject" default="dist" basedir=".">
+
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <property name="lib"  location="lib"/>
+  <property name="jar"  location="jar"/>
+  <property name="test"  location="test"/>
+
+  <property name="test.dir" location="test" />
+  <property name="test.report.dir" location="testreport" />
+
+
+    <path id="lib.class.path">
+        <fileset dir="${lib}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+
+
+
+<target name="init">
+	<mkdir dir="${build}"/>
+	<mkdir dir="${jar}"/>
+	<mkdir dir="${test.report.dir}"/>
+	<tstamp>
+		<format property="touch.time" pattern="hh:mm aa_MM-dd-yyyy"/>
+	</tstamp>
+</target>
+
+<target name="jar" depends="compile">
+	<jar destfile="${jar}/jarfile.jar" basedir="${build}">
+		<manifest>
+			<attribute name="Main-Class" value="com.test.Project"/>
+		</manifest>
+	</jar>
+</target>
+
+  <target name="compile" depends="init" >
+    <javac srcdir="${src}" destdir="${build}" classpathref="lib.class.path"/>
+  </target>
+
+  <target name="dist" depends="compile">
+    <mkdir dir="${dist}/lib"/>
+    <jar jarfile="${dist}/lib/Project.jar" basedir="${build}"/>
+  </target>
+
+
+  <target name="test-compile" depends="compile">
+
+    <javac srcdir="${test}" destdir="${test.report.dir}"
+           optimize="on" debug="on" deprecation="on"
+           classpath="${build}/classes" includeantruntime="no">
+    <classpath refid="lib.class.path"/>
+    </javac>
+  </target>
+
+  <target name="test" depends="test-compile" description="Run the unit tests.">
+
+    <junit printsummary="on" fork="true">
+      <classpath>
+        <pathelement path="${test.report.dir}"/>
+        <path refid="lib.class.path"/>
+      </classpath>
+      <batchtest>
+	<formatter type="xml"/>
+        <fileset dir="testreport"/>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="${test.report.dir}"/>
+    <delete dir="${jar}"/>
+  </target>
+</project>
