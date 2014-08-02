@@ -6,6 +6,7 @@
   <property name="lib"  location="lib"/>
   <property name="jar"  location="jar"/>
   <property name="test"  location="test"/>
+  <property name="config"  location="config"/>
 
   <property name="test.dir" location="test" />
   <property name="test.report.dir" location="testreport" />
@@ -24,13 +25,14 @@
 	<mkdir dir="${build}"/>
 	<mkdir dir="${jar}"/>
 	<mkdir dir="${test.report.dir}"/>
+	<mkdir dir="${dist}"/>
 	<tstamp>
 		<format property="touch.time" pattern="hh:mm aa_MM-dd-yyyy"/>
 	</tstamp>
 </target>
 
 <target name="jar" depends="compile">
-	<jar destfile="${jar}/jarfile.jar" basedir="${build}">
+	<jar destfile="${jar}/${touch.time}_jarfile.jar" basedir="${build}">
 		<manifest>
 			<attribute name="Main-Class" value="com.test.Project"/>
 		</manifest>
@@ -41,10 +43,14 @@
     <javac srcdir="${src}" destdir="${build}" classpathref="lib.class.path"/>
   </target>
 
-  <target name="dist" depends="compile">
-    <mkdir dir="${dist}/lib"/>
-    <jar jarfile="${dist}/lib/Project.jar" basedir="${build}"/>
-  </target>
+<target name="dist" depends="compile">
+	<jar jarfile="${dist}/Project.jar" basedir="${build}"/>
+	<copy todir="${dist}">
+		<fileset dir="${lib}"/>
+	</copy>
+	<copy file="${config}/project.properties" todir="${dist}"/>
+	<zip destfile="${dist}/${touch.time}_Project.zip" basedir="${dist}"/>
+</target>
 
 
   <target name="test-compile" depends="compile">
